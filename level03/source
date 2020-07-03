@@ -1,0 +1,48 @@
+#include <stdio.h> 
+
+void decrypt(int nb)
+{
+	char buf[] = "Q}|u`sfg~sf{}|a3"; /* total = 29 - 13 = 16 + 1 (\0)  = 17 | ebp-0x1d */
+	size_t len = strlen(buf); /* ebp-0x24 */
+	int i = 0; /* ebp-0x28 */
+
+	while (i < len)
+	{
+		buf[i] = buf[i] ^ nb;
+		i++;
+	}
+	if (strncmp(buf, "Congratulations!", 17) == 0)
+	{
+		system("/bin/sh");
+	}
+	else
+	{
+		puts("\nInvalid Password");
+	}
+	return;
+}
+
+void test(int input, int nb)
+{
+	nb = nb - input;
+	if (nb <= 21)
+	{
+		decrypt(nb);
+	}
+	decrypt(rand());
+	return();
+}
+
+int main()
+{
+	int nb;
+
+	srand(time(0));
+	puts("***********************************");
+	puts("*\t\tlevel03\t\t**");
+	puts("***********************************");
+	printf("Password:");
+	scanf("%d", &nb);
+	test(nb, 322424845);
+	return(0);
+}

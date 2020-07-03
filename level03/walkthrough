@@ -1,0 +1,9 @@
+# this program decrypts xor with this key 0x1337d00d - atoi(password)
+crypted string : "Q}|u`sfg~sf{}|a3".
+result string : "Congratulations!"
+'Q' ^ 'C' = 0x12
+'}' ^ 'o' = 0x12
+...
+# so 0x1337d00d - atoi(password) = 0x12
+# atoi(password) = 0x1337d00d - 0x12 = 0x1337CFFB (322424827)
+# we have to put this number as password and get the shell.
