@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char *a_user_name;
+char *user_name;
 
 int verify_user_name()
 {
@@ -23,7 +23,7 @@ int main()
 	nb = 0;
 	puts("********* ADMIN LOGIN PROMPT *********");
 	printf("Enter Username: ");
-	fgets(a_user_name, 256, stdin);
+	fgets(user_name, 256, stdin);
 	nb = verify_user_name();
 	if (nb != 0)
 	{
