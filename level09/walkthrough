@@ -1,0 +1,20 @@
+#this program fills a structure message with the username and the text message and uses 2 functions set_msg and set_username.
+#there is also a non used function, called secret_backdoor. This function asks an input and execs it with system()
+
+#set_msg() uses strncpy to fill the structure, with the good size, so there is no possible overflow
+#but The structure string is a buffer of char[40]. The loop in set_username starts with i = 0 and loops while i <= 40
+#so 41 times and not 40. => we can overflow the next struct variable : len_message
+#len_message : controls the strncpy on the set_msg function.
+#we put a big number inside and the strncpy will overflow
+#we inject the biggest number we can in 1 byte : 255 == 0xff
+[40 bytes for username input] + [1 byte number to overwrite the len] + [\n for the next input] + [big string to segfault the strncpy]
+
+#since the binary has been compiled in 64-bit, we need to find the right offset to overwrite the content of the stack pointer RSP
+#in order to make handle_msg jump to secret_backdoor instead of returning to main.
+
+#we get the secret_backdoor address
+(gdb) info function secret_backdoor
+All functions matching regular expression "secret_backdoor":
+
+Non-debugging symbols:
+0x000055555555488c  secret_backdoor
