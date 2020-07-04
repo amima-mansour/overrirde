@@ -1,0 +1,35 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <linux/ptrace.h>
+
+int main(void)
+{
+	int pid = fork(); /* esp+0xac */
+	char buf[128]; /* esp+0x20 */
+
+	bzero(buf, 32);
+	int ret = 0; /* esp+0xa8 */
+	int status = 0; /* esp+0x1c */
+
+	if (child_pid == 0)
+	{
+		prctl(PR_SET_PDEATHSIG, 1);
+		ptrace(PTRACE_TRACEME, 0, 0, 0);
+		puts("Give me some shellcode, k");
+		gets(&buf);
+		return (0);
+	}
+	while (ret = ptrace(PTRACE_PEEKUSR, pid, 44, 0) != 11)
+	{
+		wait(&status);
+		if ((status & 127) == 0 || (((status & 127) + 1) / 2) > 0)
+		{
+			puts("child is exiting...");
+			return (0);
+		}
+	}
+	puts("no exec() for you");
+	kill(pid, 9);
+	return (0);
+}

