@@ -5,8 +5,8 @@
 # have a shell
 # pb : auth contains a complex hashing algorithm to calculate the good serial
 # with the login characters. we can reverse it and make a hashing program to generate the
-# serials, or ... read the memory when the function auth compare the serial
-# generated with the input!)]
+# serials, or read the memory when the function auth compares the serial
+# generated with the input
 # First let's create a file with a login and a random serial:
 echo "HELLO42" > /tmp/test
 echo "42" >> /tmp/test
