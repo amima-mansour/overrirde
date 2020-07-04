@@ -2,9 +2,9 @@
 
 void decrypt(int nb)
 {
-	char buf[] = "Q}|u`sfg~sf{}|a3"; /* total = 29 - 13 = 16 + 1 (\0)  = 17 | ebp-0x1d */
-	size_t len = strlen(buf); /* ebp-0x24 */
-	int i = 0; /* ebp-0x28 */
+	char buf[] = "Q}|u`sfg~sf{}|a3";
+	size_t len = strlen(buf);
+	int i = 0;
 
 	while (i < len)
 	{
