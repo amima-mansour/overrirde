@@ -28,10 +28,10 @@ void set_username(struct s_msg *msg)
     int i = 0;
     while (i <= 40 && buffer[i] != 0)
     {
-        msg.username[i] = buffer[i];
+        msg->username[i] = buffer[i];
         i++;
     }
-    printf(" %s", msg->username);
+    printf(">: Welcome,  %s", msg->username);
     return;
 }
 
@@ -40,7 +40,7 @@ void set_msg(struct s_msg *msg)
     char buffer[1024];
     bzero(buffer, 128 * 8);
     puts(">: Msg @Unix-Dude");
-    printf("Enter your username");
+    printf(">>: ");
     fgets(buffer, 1024, stdin);
     strncpy(msg->msg, buffer, msg->len_msg);
     return;
