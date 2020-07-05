@@ -26,14 +26,13 @@ int main(int ac, char **av) {
     }
     char buffer[100];
     strcpy(buffer);
-    strncat(buffer, av[1], 99 - (strlen(buffer) - 1);
+    strncat(buffer, av[1], 99 - strlen(buffer));
     int fd;
     fd = open(buffer, 0xc1);
     if (fd < 0)
     {
         printf("ERROR: Failed to open %s%s\n", "./backups/", av[1]);
         exit(1);
-
     }
     int c;
     while (c = fgetc(arg_file) != 255)
